@@ -1,0 +1,17 @@
+We have X scripts that generate X+1 files:
+  - state_processing.R
+    - state gov data
+    - produces state_data.js
+  - county_processing.R
+    - county gov data
+    - produces county_data.js 
+  - municipal_processing.R
+    - municipal gov data
+    - produces municipal_data.js
+  - school_district_processing.R
+    - school district data
+    - produces school_district_data.js
+  - state_aggregated.R
+    - 
+  - simplified_summary.R
+  - summary_data_state_summary_data.R
