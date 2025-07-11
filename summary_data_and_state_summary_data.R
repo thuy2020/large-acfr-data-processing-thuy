@@ -17,6 +17,10 @@ school_district_data <- school_district_data[, -1]
 # Process state data
 state_data <- state_data |>
   filter(year == 2023) |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -29,7 +33,10 @@ state_data <- state_data |>
     urban_population = urban_pop,
     pct_urban_population = pct_urban_pop
   ) |>
-  # create net net pension and opeb liabilities
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
+  ) |>
   mutate(
     net_pension_assets = ifelse(is.na(net_pension_assets), 0, net_pension_assets),
     net_opeb_assets = ifelse(is.na(net_opeb_assets), 0, net_opeb_assets),
@@ -57,6 +64,13 @@ state_data <- state_data |>
 # Process county data
 county_data <- county_data |>
   filter(year == 2023) |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
+  filter(
+    flg_muni != 1  # Exclude municipalities
+  ) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -68,6 +82,10 @@ county_data <- county_data |>
     total_expenses = expenses,
     urban_population = urban_pop,
     pct_urban_population = pct_urban_pop
+  ) |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -96,7 +114,14 @@ county_data <- county_data |>
 
 # Process municipal data
 municipal_data <- municipal_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
+  filter(
+    flg_county != 1  # Exclude counties
+  ) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -106,6 +131,10 @@ municipal_data <- municipal_data |>
     entity_type = category,
     total_revenues = revenues,
     total_expenses = expenses
+  )  |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -134,6 +163,10 @@ municipal_data <- municipal_data |>
 
 # Process school district data
 school_district_data <- school_district_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
@@ -144,6 +177,10 @@ school_district_data <- school_district_data |>
     entity_type = category,
     total_revenues = revenues,
     total_expenses = expenses
+  ) |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -172,7 +209,7 @@ school_district_data <- school_district_data |>
     bond_loans_notes = ifelse(is.na(bonds_outstanding), 0, bonds_outstanding) + 
       ifelse(is.na(loans_outstanding), 0, loans_outstanding) + 
       ifelse(is.na(notes_outstanding), 0, notes_outstanding)
-  )
+  ) 
 
 # Create entity type summary - using a safer approach with explicit checks
 # Function to safely summarize numeric columns
@@ -209,7 +246,9 @@ state_summary <- state_data |>
     total_revenues = safe_sum(state_data, "total_revenues"),
     total_expenses = safe_sum(state_data, "total_expenses"),
     pension_liability = safe_sum(state_data, "pension_liability"),
+    non_net_pension_liability = safe_sum(state_data, "non_net_pension_liability"),
     opeb_liability = safe_sum(state_data, "opeb_liability"),
+    non_net_opeb_liability = safe_sum(state_data, "non_net_opeb_liability"),
     bonds_outstanding = safe_sum(state_data, "bonds_outstanding"),
     loans_outstanding = safe_sum(state_data, "loans_outstanding"),
     notes_outstanding = safe_sum(state_data, "notes_outstanding"),
@@ -234,7 +273,9 @@ county_summary <- county_data |>
     total_revenues = safe_sum(county_data, "total_revenues"),
     total_expenses = safe_sum(county_data, "total_expenses"),
     pension_liability = safe_sum(county_data, "pension_liability"),
+    non_net_pension_liability = safe_sum(county_data, "non_net_pension_liability"),
     opeb_liability = safe_sum(county_data, "opeb_liability"),
+    non_net_opeb_liability = safe_sum(county_data, "non_net_opeb_liability"),
     bonds_outstanding = safe_sum(county_data, "bonds_outstanding"),
     loans_outstanding = safe_sum(county_data, "loans_outstanding"),
     notes_outstanding = safe_sum(county_data, "notes_outstanding"),
@@ -259,7 +300,9 @@ municipal_summary <- municipal_data |>
     total_revenues = safe_sum(municipal_data, "total_revenues"),
     total_expenses = safe_sum(municipal_data, "total_expenses"),
     pension_liability = safe_sum(municipal_data, "pension_liability"),
+    non_net_pension_liability = safe_sum(municipal_data, "non_net_pension_liability"),
     opeb_liability = safe_sum(municipal_data, "opeb_liability"),
+    non_net_opeb_liability = safe_sum(municipal_data, "non_net_opeb_liability"),
     bonds_outstanding = safe_sum(municipal_data, "bonds_outstanding"),
     loans_outstanding = safe_sum(municipal_data, "loans_outstanding"),
     notes_outstanding = safe_sum(municipal_data, "notes_outstanding"),
@@ -284,7 +327,9 @@ school_district_summary <- school_district_data |>
     total_revenues = safe_sum(school_district_data, "total_revenues"),
     total_expenses = safe_sum(school_district_data, "total_expenses"),
     pension_liability = safe_sum(school_district_data, "pension_liability"),
+    non_net_pension_liability = safe_sum(school_district_data, "non_net_pension_liability"),
     opeb_liability = safe_sum(school_district_data, "opeb_liability"),
+    non_net_opeb_liability = safe_sum(school_district_data, "non_net_opeb_liability"),
     bonds_outstanding = safe_sum(school_district_data, "bonds_outstanding"),
     loans_outstanding = safe_sum(school_district_data, "loans_outstanding"),
     notes_outstanding = safe_sum(school_district_data, "notes_outstanding"),
@@ -320,7 +365,9 @@ overall_national_summary <- entity_type_summary |>
     total_revenues = sum(total_revenues, na.rm = TRUE),
     total_expenses = sum(total_expenses, na.rm = TRUE),
     pension_liability = sum(pension_liability, na.rm = TRUE),
+    non_net_pension_liability = sum(non_net_pension_liability, na.rm = TRUE),
     opeb_liability = sum(opeb_liability, na.rm = TRUE),
+    non_net_opeb_liability = sum(non_net_opeb_liability, na.rm = TRUE),
     bonds_outstanding = sum(bonds_outstanding, na.rm = TRUE),
     loans_outstanding = sum(loans_outstanding, na.rm = TRUE),
     notes_outstanding = sum(notes_outstanding, na.rm = TRUE),
@@ -344,7 +391,7 @@ overall_national_summary <- entity_type_summary |>
   select(
     entity_type, count, population, student_enrollment, total_assets, current_assets,
     total_liabilities, current_liabilities, total_revenues, total_expenses,
-    pension_liability, opeb_liability, bonds_outstanding,
+    pension_liability, non_net_pension_liability, opeb_liability, non_net_opeb_liability, bonds_outstanding,
     loans_outstanding, notes_outstanding, compensated_absences, bond_loans_notes,
     net_position, debt_ratio, free_cash_flow, current_ratio, non_current_liabilities
   )
@@ -397,7 +444,9 @@ state_state_summary <- state_data |>
     total_revenues            = sum(total_revenues,        na.rm = TRUE),
     total_expenses            = sum(total_expenses,        na.rm = TRUE),
     pension_liability   = sum(pension_liability,     na.rm = TRUE),
+    non_net_pension_liability = sum(non_net_pension_liability, na.rm = TRUE),
     opeb_liability      = sum(opeb_liability,        na.rm = TRUE),
+    non_net_opeb_liability = sum(non_net_opeb_liability, na.rm = TRUE),
     bonds_outstanding   = sum(bonds_outstanding,     na.rm = TRUE),
     loans_outstanding   = sum(loans_outstanding,     na.rm = TRUE),
     notes_outstanding   = sum(notes_outstanding,     na.rm = TRUE),
@@ -430,7 +479,9 @@ county_state_summary <- county_data |>
     total_revenues            = sum(total_revenues,        na.rm = TRUE),
     total_expenses            = sum(total_expenses,        na.rm = TRUE),
     pension_liability   = sum(pension_liability,     na.rm = TRUE),
+    non_net_pension_liability = sum(non_net_pension_liability, na.rm = TRUE),
     opeb_liability      = sum(opeb_liability,        na.rm = TRUE),
+    non_net_opeb_liability = sum(non_net_opeb_liability, na.rm = TRUE),
     bonds_outstanding   = sum(bonds_outstanding,     na.rm = TRUE),
     loans_outstanding   = sum(loans_outstanding,     na.rm = TRUE),
     notes_outstanding   = sum(notes_outstanding,     na.rm = TRUE),
@@ -463,7 +514,9 @@ municipal_state_summary <- municipal_data |>
     total_revenues            = sum(total_revenues,        na.rm = TRUE),
     total_expenses            = sum(total_expenses,        na.rm = TRUE),
     pension_liability   = sum(pension_liability,     na.rm = TRUE),
+    non_net_pension_liability = sum(non_net_pension_liability, na.rm = TRUE),
     opeb_liability      = sum(opeb_liability,        na.rm = TRUE),
+    non_net_opeb_liability = sum(non_net_opeb_liability, na.rm = TRUE),
     bonds_outstanding   = sum(bonds_outstanding,     na.rm = TRUE),
     loans_outstanding   = sum(loans_outstanding,     na.rm = TRUE),
     notes_outstanding   = sum(notes_outstanding,     na.rm = TRUE),
@@ -496,7 +549,9 @@ school_state_summary <- school_district_data |>
     total_revenues            = sum(total_revenues,        na.rm = TRUE),
     total_expenses            = sum(total_expenses,        na.rm = TRUE),
     pension_liability   = sum(pension_liability,     na.rm = TRUE),
+    non_net_pension_liability = sum(non_net_pension_liability, na.rm = TRUE),
     opeb_liability      = sum(opeb_liability,        na.rm = TRUE),
+    non_net_opeb_liability = sum(non_net_opeb_liability, na.rm = TRUE),
     bonds_outstanding   = sum(bonds_outstanding,     na.rm = TRUE),
     loans_outstanding   = sum(loans_outstanding,     na.rm = TRUE),
     notes_outstanding   = sum(notes_outstanding,     na.rm = TRUE),
@@ -538,7 +593,9 @@ overall_state_summary <- state_entity_type_summary |>
     total_revenues = sum(total_revenues, na.rm = TRUE),
     total_expenses = sum(total_expenses, na.rm = TRUE),
     pension_liability = sum(pension_liability, na.rm = TRUE),
+    non_net_pension_liability = sum(non_net_pension_liability, na.rm = TRUE),
     opeb_liability = sum(opeb_liability, na.rm = TRUE),
+    non_net_opeb_liability = sum(non_net_opeb_liability, na.rm = TRUE),
     bonds_outstanding = sum(bonds_outstanding, na.rm = TRUE),
     loans_outstanding = sum(loans_outstanding, na.rm = TRUE),
     notes_outstanding = sum(notes_outstanding, na.rm = TRUE),
@@ -564,7 +621,7 @@ overall_state_summary <- state_entity_type_summary |>
   select(
     state_abbr, state_name, entity_type, count, population, student_enrollment,
     total_assets, current_assets, total_liabilities, current_liabilities,
-    total_revenues, total_expenses, pension_liability, opeb_liability,
+    total_revenues, total_expenses, pension_liability, non_net_pension_liability, opeb_liability, non_net_opeb_liability,
     bonds_outstanding, loans_outstanding, notes_outstanding, compensated_absences,
     bond_loans_notes, net_position, debt_ratio, free_cash_flow, 
     current_ratio, non_current_liabilities

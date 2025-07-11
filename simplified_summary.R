@@ -16,6 +16,10 @@ school_district_data <- school_district_data[, -1]
 
 # Process state data
 state_data <- state_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
@@ -28,6 +32,10 @@ state_data <- state_data |>
     total_expenses = expenses,
     urban_population = urban_pop,
     pct_urban_population = pct_urban_pop
+  ) |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -55,7 +63,11 @@ state_data <- state_data |>
 
 # Process county data
 county_data <- county_data |>
-  filter(year == 2023) |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>  filter(year == 2023) |>
+  filter(flg_muni != 1) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -67,6 +79,10 @@ county_data <- county_data |>
     total_expenses = expenses,
     urban_population = urban_pop,
     pct_urban_population = pct_urban_pop
+  ) |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -95,6 +111,11 @@ county_data <- county_data |>
 # Process municipal data
 municipal_data <- municipal_data |>
   filter(year == 2023) |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
+  filter(flg_county != 1) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -104,6 +125,10 @@ municipal_data <- municipal_data |>
     entity_type = category,
     total_revenues = revenues,
     total_expenses = expenses
+  ) |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -132,6 +157,10 @@ municipal_data <- municipal_data |>
 # Process school district data
 school_district_data <- school_district_data |>
   filter(year == 2023) |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -141,6 +170,10 @@ school_district_data <- school_district_data |>
     entity_type = category,
     total_revenues = revenues,
     total_expenses = expenses
+  ) |>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
   mutate(
@@ -216,10 +249,20 @@ pension_liability <- safe_sum(state_data, "pension_liability") +
                            safe_sum(municipal_data, "pension_liability") + 
                            safe_sum(school_district_data, "pension_liability")
 
+non_net_pension_liability <- safe_sum(state_data, "non_net_pension_liability") + 
+                                 safe_sum(county_data, "non_net_pension_liability") + 
+                                 safe_sum(municipal_data, "non_net_pension_liability") + 
+                                 safe_sum(school_district_data, "non_net_pension_liability")
+
 opeb_liability <- safe_sum(state_data, "opeb_liability") + 
                          safe_sum(county_data, "opeb_liability") + 
                          safe_sum(municipal_data, "opeb_liability") + 
                          safe_sum(school_district_data, "opeb_liability")
+
+non_net_opeb_liability <- safe_sum(state_data, "non_net_opeb_liability") + 
+                                 safe_sum(county_data, "non_net_opeb_liability") + 
+                                 safe_sum(municipal_data, "non_net_opeb_liability") + 
+                                 safe_sum(school_district_data, "non_net_opeb_liability")
 
 bonds_outstanding <- safe_sum(state_data, "bonds_outstanding") + 
                            safe_sum(county_data, "bonds_outstanding") + 
@@ -280,7 +323,9 @@ overall_totals <- list(
   total_liabilities = total_liabilities,
   current_liabilities = current_liabilities,
   pension_liability = pension_liability,
+  non_net_pension_liability = non_net_pension_liability,
   opeb_liability = opeb_liability,
+  non_net_opeb_liability = non_net_opeb_liability,
   bonds_outstanding = bonds_outstanding,
   loans_outstanding = loans_outstanding,
   notes_outstanding = notes_outstanding,

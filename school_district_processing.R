@@ -19,6 +19,10 @@ school_district_data <- school_district_data |>
     total_expenses = expenses,
     student_enrollment = enrollment_23
   )|>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
+  ) |>
   # create net net pension and opeb liabilities
   mutate(
     net_pension_assets = ifelse(is.na(net_pension_assets), 0, net_pension_assets),
@@ -59,14 +63,14 @@ school_district_data <- school_district_data |>
                      ifelse(is.na(notes_outstanding), 0, notes_outstanding)
   ) |>
   mutate(
-    flg_acfr = 1
-  ) |>
-  mutate(
     population = ifelse(is.na(student_enrollment), 0, student_enrollment),
   )
 
 
 school_district_data <- school_district_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
+  ) |>
   select(
     entity_id,
     entity_name,
@@ -82,7 +86,9 @@ school_district_data <- school_district_data |>
     total_expenses,
     net_position,
     pension_liability,
+    non_net_pension_liability,
     opeb_liability,
+    non_net_opeb_liability,
     bonds_outstanding,
     loans_outstanding,
     notes_outstanding,
@@ -105,4 +111,6 @@ school_district_data <- school_district_data |>
 school_district_json <- toJSON(school_district_data, pretty = TRUE)
 school_district_json <- paste0("export default ", school_district_json)
 write(school_district_json, "output/school_district_data.js")
+# save RDS copy
+saveRDS(school_district_data, "output/school_district_data.rds")
 

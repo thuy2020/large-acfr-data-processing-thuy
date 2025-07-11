@@ -20,6 +20,10 @@ state_data <- state_data |>
     urban_population = urban_pop,
     pct_urban_population = pct_urban_pop
   )|>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
+  ) |>
   # create net net pension and opeb liabilities
   mutate(
     net_pension_assets = ifelse(is.na(net_pension_assets), 0, net_pension_assets),
@@ -58,10 +62,7 @@ state_data <- state_data |>
     bond_loans_notes = ifelse(is.na(bonds_outstanding), 0, bonds_outstanding) + 
                      ifelse(is.na(loans_outstanding), 0, loans_outstanding) + 
                      ifelse(is.na(notes_outstanding), 0, notes_outstanding)
-  ) |>
-  mutate(
-    flg_acfr = 1
-  ) 
+  )
 
 
 state_data <- state_data |>
@@ -78,7 +79,9 @@ state_data <- state_data |>
     total_liabilities,
     current_liabilities,
     pension_liability,
+    non_net_pension_liability,
     opeb_liability,
+    non_net_opeb_liability,
     bonds_outstanding,
     loans_outstanding,
     notes_outstanding,
@@ -96,41 +99,6 @@ state_data <- state_data |>
     pct_urban_population,
     document_url,
     flg_acfr
-  ) |>
-  # Add a row for Nevada, population should be 3,104,614, everything else is NA
-  bind_rows(
-    tibble(
-      entity_id = 32000,
-      entity_name = "nevada",
-      entity_type = "General Purpose",
-      geo_id = "32000",
-      year = 2023,
-      state_name = "Nevada",
-      state_abbr = "NV",
-      total_assets = NA_real_,
-      current_assets = NA_real_,
-      total_liabilities = NA_real_,
-      current_liabilities = NA_real_,
-      pension_liability = NA_real_,
-      opeb_liability = NA_real_,
-      bonds_outstanding = NA_real_,
-      loans_outstanding = NA_real_,
-      notes_outstanding = NA_real_,
-      compensated_absences = NA_real_,
-      bond_loans_notes = NA_real_,
-      total_revenues = NA_real_,
-      total_expenses = NA_real_,
-      net_position = NA_real_,
-      debt_ratio = NA_real_,
-      current_ratio = NA_real_,
-      free_cash_flow = NA_real_,
-      non_current_liabilities = NA_real_,
-      population = 3104624,
-      urban_population = NA_real_,
-      pct_urban_population = NA_real_,
-      document_url = "",
-      flg_acfr = 0
-    )
   )
 
 
@@ -140,3 +108,5 @@ state_data <- state_data |>
 state_json <- toJSON(state_data, pretty = TRUE)
 state_json <- paste0("export default ", state_json)
 write(state_json, "output/state_data.js")
+# also save as RDS for downstream R consumption
+saveRDS(state_data, "output/state_data.rds")

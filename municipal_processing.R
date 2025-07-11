@@ -6,7 +6,7 @@ municipal_data <- read_csv("input/all_municipalities_2023.csv")
 municipal_data <- municipal_data[, -1]
 
 # read coordinates data
-coordinates_data <- readRDS("coordinates_data/geocoded_final_20250315_182544.rds")
+# coordinates_data <- readRDS("coordinates_data/geocoded_final_20250315_182544.rds")
 
 # filter for only 2023 data, standardize names
 municipal_data <- municipal_data |>
@@ -22,6 +22,10 @@ municipal_data <- municipal_data |>
     total_expenses = expenses,
     # median_household_income = median_hh_income_21
   )|>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
+  ) |>
   # create net net pension and opeb liabilities
   mutate(
     net_pension_assets = ifelse(is.na(net_pension_assets), 0, net_pension_assets),
@@ -63,16 +67,16 @@ municipal_data <- municipal_data |>
   )
 
 # Prepare coordinates data for merging
-coordinates_data <- coordinates_data |>
-  rename(
-    entity_name = clean_name,
-    state_name = state.name
-  ) |>
-  # Create a merged key for joining
-  mutate(
-    entity_state_key = tolower(paste(entity_name, state_name, sep = "_"))
-  ) |>
-  select(entity_name, state_name, entity_state_key, latitude, longitude)
+# coordinates_data <- coordinates_data |>
+#   rename(
+#     entity_name = clean_name,
+#     state_name = state.name
+#   ) |>
+#   # Create a merged key for joining
+#   mutate(
+#     entity_state_key = tolower(paste(entity_name, state_name, sep = "_"))
+#   ) |>
+#   select(entity_name, state_name, entity_state_key, latitude, longitude)
 
 # Add the same merged key to municipal data
 municipal_data <- municipal_data |>
@@ -81,15 +85,13 @@ municipal_data <- municipal_data |>
   )
 
 # Merge municipal data with coordinates data using the merged key
-municipal_data <- municipal_data |>
-  left_join(coordinates_data, by = "entity_state_key") |>
+# municipal_data <- municipal_data |>
+  # left_join(coordinates_data, by = "entity_state_key") |>
   # Use original entity_name and state_name from municipal_data
   # and only keep latitude and longitude from coordinates_data
-  select(-entity_name.y, -state_name.y) |>
-  rename(entity_name = entity_name.x, state_name = state_name.x) |>
-  mutate(
-    flg_acfr = 1
-  )
+  # select(-entity_name.y, -state_name.y) |>
+  # rename(entity_name = entity_name.x, state_name = state_name.x,
+  #        latitude = latitude.y, longitude = longitude.y)
 
 # Select final columns including new latitude and longitude
 municipal_data <- municipal_data |>
@@ -109,7 +111,9 @@ municipal_data <- municipal_data |>
     total_expenses,
     net_position,
     pension_liability,
+    non_net_pension_liability,
     opeb_liability,
+    non_net_opeb_liability,
     bonds_outstanding,
     loans_outstanding,
     notes_outstanding,
@@ -124,10 +128,13 @@ municipal_data <- municipal_data |>
     latitude,
     longitude,
     document_url,
-    flg_acfr
+    flg_acfr,
+    flg_county
   )
 
 # write to json
 municipal_json <- toJSON(municipal_data, pretty = TRUE)
 municipal_json <- paste0("export default ", municipal_json)
 write(municipal_json, "output/municipal_data.js")
+# save RDS copy
+saveRDS(municipal_data, "output/municipal_data.rds")

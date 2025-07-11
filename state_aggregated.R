@@ -16,6 +16,10 @@ school_district_data <- school_district_data[, -1]
 
 # Process state data
 state_data <- state_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
@@ -45,7 +49,14 @@ state_data <- state_data |>
 
 # Process county data
 county_data <- county_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
+  filter(
+    flg_muni != 1  # Exclude municipalities
+  ) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -74,7 +85,14 @@ county_data <- county_data |>
 
 # Process municipal data
 municipal_data <- municipal_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
+  filter(
+    flg_county != 1  # Exclude counties
+  ) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -101,6 +119,10 @@ municipal_data <- municipal_data |>
 
 # Process school district data
 school_district_data <- school_district_data |>
+  mutate(
+    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
+  ) |>
+  filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
@@ -320,6 +342,8 @@ state_aggregate_data <- state_aggregate_data |>
 state_aggregate_json <- toJSON(state_aggregate_data, pretty = TRUE)
 state_aggregate_json <- paste0("export default ", state_aggregate_json)
 write(state_aggregate_json, "output/state_aggregated.js")
+# save RDS copy
+saveRDS(state_aggregate_data, "output/state_aggregated.rds")
 
 # Print summary to console
 cat("State aggregate data created with", nrow(state_aggregate_data), "states\n")

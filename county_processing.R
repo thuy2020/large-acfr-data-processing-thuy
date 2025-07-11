@@ -30,6 +30,10 @@ county_data <- county_data |>
     pct_urban_population = pct_urban_pop,
     # median_household_income = median_hh_income_21
   )|>
+  mutate(
+    non_net_pension_liability = net_pension_liability,
+    non_net_opeb_liability = net_opeb_liability
+  ) |>
   # create net net pension and opeb liabilities
   mutate(
     net_pension_assets = ifelse(is.na(net_pension_assets), 0, net_pension_assets),
@@ -70,8 +74,10 @@ county_data <- county_data |>
                      ifelse(is.na(notes_outstanding), 0, notes_outstanding)
   )
 
-
 county_data <- county_data |>
+  mutate(
+    flg_backfilled = ifelse(is.na(flg_backfilled), 0, flg_backfilled),
+  ) |>
   select(
     entity_id,
     entity_name,
@@ -85,7 +91,9 @@ county_data <- county_data |>
     total_liabilities,
     current_liabilities,
     pension_liability,
+    non_net_pension_liability,
     opeb_liability,
+    non_net_opeb_liability,
     bonds_outstanding,
     loans_outstanding,
     notes_outstanding,
@@ -104,8 +112,8 @@ county_data <- county_data |>
     # median_household_income,
     document_url,
     flg_acfr,
-    flg_county,
-    flg_muni
+    flg_muni,
+    flg_backfilled
   )
 
 
@@ -113,5 +121,7 @@ county_data <- county_data |>
 county_json <- toJSON(county_data, pretty = TRUE)
 county_json <- paste0("export default ", county_json)
 write(county_json, "output/county_data.js")
+# save RDS
+saveRDS(county_data, "output/county_data.rds")
 
 
