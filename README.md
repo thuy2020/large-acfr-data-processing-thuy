@@ -1,0 +1,21 @@
+We have 7 scripts that generate 8 data files:
+  - state_processing.R
+    - state gov data
+    - produces state_data.js
+  - county_processing.R
+    - county gov data
+    - produces county_data.js 
+  - municipal_processing.R
+    - municipal gov data
+    - produces municipal_data.js
+  - school_district_processing.R
+    - school district data
+    - produces school_district_data.js
+  - state_aggregated.R
+    - aggregate of state, county, muni, and school district data
+    - produces state_aggregated.js
+  - simplified_summary.R
+    - produces national summary of entity counts, population/enrollment, and variable sums
+  - summary_data_state_summary_data.R
+    - produces state and national summaries by entity type
+    - produces summary_data.js and state_summary_data.js 
