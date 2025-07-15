@@ -25,6 +25,25 @@ dataset_list <- list(
   "State Aggregated" = readRDS(file.path(root, "output/state_aggregated.rds"))
 )
 
+# ---- Add URL column from CSVs ----
+csv_paths <- list.files(file.path(root, "input"), pattern = "\\.csv$", full.names = TRUE, ignore.case = TRUE)
+urls_df <- purrr::map_dfr(csv_paths, function(fp) {
+  df <- tryCatch(read.csv(fp, stringsAsFactors = FALSE), error = function(e) NULL)
+  if (is.null(df) || !("id" %in% names(df) && "url" %in% names(df))) return(NULL)
+  dplyr::mutate(df, id = as.character(id), year = as.integer(year)) %>% dplyr::select(id, year, url)
+}) %>% dplyr::distinct() %>% dplyr::mutate(id = as.character(id))
+
+for (nm in names(dataset_list)) {
+  df <- dataset_list[[nm]]
+  if ("id" %in% names(df)) df <- dplyr::mutate(df, id = as.character(id))
+  if (all(c("id", "year") %in% names(df))) {
+    df <- dplyr::left_join(df, urls_df, by = c("id", "year"))
+  } else if ("id" %in% names(df)) {
+    df <- dplyr::left_join(df, urls_df[, c("id", "url")], by = "id")
+  }
+  dataset_list[[nm]] <- df
+}
+
 # list CSV files in input for diff tab
 file_choices <- list.files(file.path(root, "input"), pattern = "\\.csv$", ignore.case = TRUE)
 
@@ -159,6 +178,15 @@ server <- function(input, output, session) {
     if (!any(mask)) return(NULL)
 
     selected_rows <- tbl$row_id[mask]
+    # safe URL extraction
+    url_vec <- if ("url" %in% names(df)) {
+                       df$url[selected_rows]
+                     } else if ("document_url" %in% names(df)) {
+                       df$document_url[selected_rows]
+                     } else NA_character_
+    link_vec <- ifelse(!is.na(url_vec) & nzchar(url_vec),
+                       sprintf('<a href="%s" target="_blank">link</a>', url_vec),
+                       NA_character_)
     dn <- denom_name()
 
     res <- data.frame(
@@ -168,9 +196,10 @@ server <- function(input, output, session) {
       Denom  = round(if (!is.na(dn)) df[[dn]][selected_rows] else NA, 0),
       Raw    = round(df[[input$variable]][selected_rows], 0),
       PerCap = round(tbl$value[mask], 0),
+      Link   = link_vec,
       stringsAsFactors = FALSE
     )
-    datatable(res, options = list(pageLength = 20, scrollX = TRUE), rownames = FALSE)
+    datatable(res, options = list(pageLength = 20, scrollX = TRUE), rownames = FALSE, escape = FALSE)
   })
 
   # ---------- DIFF TAB ----------
