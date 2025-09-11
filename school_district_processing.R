@@ -2,8 +2,8 @@ library(tidyverse)
 library(jsonlite)
 
 # read csv
-school_district_data <- read_csv("input/all_schooldistricts_2023.csv")
-school_district_data <- school_district_data[, -1]
+school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250911_1849.csv") %>% 
+select(-1)
 
 # filter for only 2023 data, standardize names
 school_district_data <- school_district_data |>
@@ -24,6 +24,7 @@ school_district_data <- school_district_data |>
     non_net_opeb_liability = net_opeb_liability
   ) |>
   # create net net pension and opeb liabilities
+  
   mutate(
     net_pension_assets = ifelse(is.na(net_pension_assets), 0, net_pension_assets),
     net_opeb_assets = ifelse(is.na(net_opeb_assets), 0, net_opeb_assets),
@@ -36,21 +37,23 @@ school_district_data <- school_district_data |>
     pension_liability = net_net_pension_liability,
     opeb_liability = net_net_opeb_liability
   ) |>
-  # net position
+  # protection against division by zero
   mutate(
-    net_position = total_assets - total_liabilities
-  ) |>
-  # debt ratio
-  mutate(
-    debt_ratio = total_liabilities / total_assets
+    total_assets = ifelse(is.na(total_assets), 0, total_assets),
+    total_liabilities = ifelse(is.na(total_liabilities), 0, total_liabilities),
+    current_assets = ifelse(is.na(current_assets), 0, current_assets),
+    current_liabilities = ifelse(is.na(current_liabilities), 0, current_liabilities),
+    
+    # net position
+    net_position = total_assets - total_liabilities,
+    
+    # Ratios 
+    debt_ratio = ifelse(total_assets == 0, NA, total_liabilities / total_assets),
+    current_ratio = ifelse(current_liabilities == 0, NA, current_assets / current_liabilities)
   ) |>
   # free cash flow
   mutate(
     free_cash_flow = total_revenues - (total_expenses + current_liabilities)
-  ) |>
-  # current ratio
-  mutate(
-    current_ratio = current_assets / current_liabilities
   ) |>
   # non_current_liabilities
   mutate(
@@ -68,9 +71,6 @@ school_district_data <- school_district_data |>
 
 
 school_district_data <- school_district_data |>
-  mutate(
-    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
-  ) |>
   select(
     entity_id,
     entity_name,

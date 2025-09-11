@@ -2,13 +2,10 @@ library(tidyverse)
 library(jsonlite)
 
 # read csv
-municipal_data <- read_csv("input/all_municipalities_2023.csv")
-municipal_data <- municipal_data[, -1]
+municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
+select(-1)
 
-# read coordinates data
-# coordinates_data <- readRDS("coordinates_data/geocoded_final_20250315_182544.rds")
 
-# filter for only 2023 data, standardize names
 municipal_data <- municipal_data |>
   filter(year == 2023) |>
   rename(
@@ -39,21 +36,25 @@ municipal_data <- municipal_data |>
     pension_liability = net_net_pension_liability,
     opeb_liability = net_net_opeb_liability
   ) |>
-  # net position
+  
+  # protection against division by zero
   mutate(
-    net_position = total_assets - total_liabilities
+    total_assets = ifelse(is.na(total_assets), 0, total_assets),
+    total_liabilities = ifelse(is.na(total_liabilities), 0, total_liabilities),
+    current_assets = ifelse(is.na(current_assets), 0, current_assets),
+    current_liabilities = ifelse(is.na(current_liabilities), 0, current_liabilities),
+    
+    # net position
+    net_position = total_assets - total_liabilities,
+    
+    # Ratios 
+    debt_ratio = ifelse(total_assets == 0, NA, total_liabilities / total_assets),
+    current_ratio = ifelse(current_liabilities == 0, NA, current_assets / current_liabilities)
   ) |>
-  # debt ratio
-  mutate(
-    debt_ratio = total_liabilities / total_assets
-  ) |>
+  
   # free cash flow
   mutate(
     free_cash_flow = total_revenues - (total_expenses + current_liabilities)
-  ) |>
-  # current ratio
-  mutate(
-    current_ratio = current_assets / current_liabilities
   ) |>
   # non_current_liabilities
   mutate(
@@ -63,35 +64,7 @@ municipal_data <- municipal_data |>
   mutate(
     bond_loans_notes = ifelse(is.na(bonds_outstanding), 0, bonds_outstanding) + 
                      ifelse(is.na(loans_outstanding), 0, loans_outstanding) + 
-                     ifelse(is.na(notes_outstanding), 0, notes_outstanding)
-  )
-
-# Prepare coordinates data for merging
-# coordinates_data <- coordinates_data |>
-#   rename(
-#     entity_name = clean_name,
-#     state_name = state.name
-#   ) |>
-#   # Create a merged key for joining
-#   mutate(
-#     entity_state_key = tolower(paste(entity_name, state_name, sep = "_"))
-#   ) |>
-#   select(entity_name, state_name, entity_state_key, latitude, longitude)
-
-# Add the same merged key to municipal data
-municipal_data <- municipal_data |>
-  mutate(
-    entity_state_key = tolower(paste(entity_name, state_name, sep = "_"))
-  )
-
-# Merge municipal data with coordinates data using the merged key
-# municipal_data <- municipal_data |>
-  # left_join(coordinates_data, by = "entity_state_key") |>
-  # Use original entity_name and state_name from municipal_data
-  # and only keep latitude and longitude from coordinates_data
-  # select(-entity_name.y, -state_name.y) |>
-  # rename(entity_name = entity_name.x, state_name = state_name.x,
-  #        latitude = latitude.y, longitude = longitude.y)
+                     ifelse(is.na(notes_outstanding), 0, notes_outstanding))
 
 # Select final columns including new latitude and longitude
 municipal_data <- municipal_data |>

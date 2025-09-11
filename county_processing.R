@@ -2,21 +2,13 @@ library(tidyverse)
 library(jsonlite)
 
 # read csv
-county_data <- read_csv("input/all_counties_2023.csv")
-county_data <- county_data[, -1]
+county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
+  select(-1)
 
 # filter for only 2023 data, standardize names
 county_data <- county_data |>
-  mutate(
-    year = 2023,
-    source_year = 2023,
-  ) |>
-  mutate(
-    name = ifelse(
-      is.na(name), name_census, name
-    )
-  ) |>
-  filter(year == 2023) |>
+  mutate(year = 2023)|>
+  mutate(name = ifelse(is.na(name), name_census, name)) |>
   rename(
     state_abbr = state.abb,
     state_name = state.name,
@@ -47,21 +39,24 @@ county_data <- county_data |>
     pension_liability = net_net_pension_liability,
     opeb_liability = net_net_opeb_liability
   ) |>
-  # net position
+  # protection against division by zero
   mutate(
-    net_position = total_assets - total_liabilities
+    total_assets = ifelse(is.na(total_assets), 0, total_assets),
+    total_liabilities = ifelse(is.na(total_liabilities), 0, total_liabilities),
+    current_assets = ifelse(is.na(current_assets), 0, current_assets),
+    current_liabilities = ifelse(is.na(current_liabilities), 0, current_liabilities),
+    
+    # net position
+    net_position = total_assets - total_liabilities,
+    
+    # Ratios 
+    debt_ratio = ifelse(total_assets == 0, NA, total_liabilities / total_assets),
+    current_ratio = ifelse(current_liabilities == 0, NA, current_assets / current_liabilities)
   ) |>
-  # debt ratio
-  mutate(
-    debt_ratio = total_liabilities / total_assets
-  ) |>
+  
   # free cash flow
   mutate(
     free_cash_flow = total_revenues - (total_expenses + current_liabilities)
-  ) |>
-  # current ratio
-  mutate(
-    current_ratio = current_assets / current_liabilities
   ) |>
   # non_current_liabilities
   mutate(
@@ -71,13 +66,8 @@ county_data <- county_data |>
   mutate(
     bond_loans_notes = ifelse(is.na(bonds_outstanding), 0, bonds_outstanding) + 
                      ifelse(is.na(loans_outstanding), 0, loans_outstanding) + 
-                     ifelse(is.na(notes_outstanding), 0, notes_outstanding)
-  )
-
+                     ifelse(is.na(notes_outstanding), 0, notes_outstanding))
 county_data <- county_data |>
-  mutate(
-    flg_backfilled = ifelse(is.na(flg_backfilled), 0, flg_backfilled),
-  ) |>
   select(
     entity_id,
     entity_name,

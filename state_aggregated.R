@@ -2,24 +2,21 @@ library(tidyverse)
 library(jsonlite)
 
 # Read all data files
-state_data <- read_csv("input/all_states_2023.csv")
-state_data <- state_data[, -1]
+state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250908_1333.csv") %>% 
+  select(-1)
 
-county_data <- read_csv("input/all_counties_2023.csv")
-county_data <- county_data[, -1]
+county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
+  select(-1)
 
-municipal_data <- read_csv("input/all_municipalities_2023.csv")
-municipal_data <- municipal_data[, -1]
+municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
+select(-1)
 
-school_district_data <- read_csv("input/all_schooldistricts_2023.csv")
-school_district_data <- school_district_data[, -1]
+school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250911_1849.csv") %>% 
+  select(-1)
 
 # Process state data
 state_data <- state_data |>
-  mutate(
-    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
-  ) |>
-  filter(flg_acfr == 1) |>
+  #filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
@@ -49,9 +46,7 @@ state_data <- state_data |>
 
 # Process county data
 county_data <- county_data |>
-  mutate(
-    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
-  ) |>
+  
   filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   filter(
@@ -85,9 +80,7 @@ county_data <- county_data |>
 
 # Process municipal data
 municipal_data <- municipal_data |>
-  mutate(
-    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
-  ) |>
+  
   filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   filter(
@@ -119,9 +112,7 @@ municipal_data <- municipal_data |>
 
 # Process school district data
 school_district_data <- school_district_data |>
-  mutate(
-    flg_acfr = ifelse(is.na(flg_acfr) | state.abb == "NV", 1, flg_acfr),
-  ) |>
+  
   filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
@@ -157,6 +148,13 @@ state_demographics <- state_data |>
     urban_population,
     pct_urban_population
   ) |>
+  add_row(state_name = "District of Columbia",
+          state_abbr = "DC",
+          population = 689546,
+          urban_population = 689546,
+          pct_urban_population = 100) %>% 
+  mutate(urban_population = ifelse(state_abbr == "NV", 2920000, urban_population)) %>% 
+  mutate(pct_urban_population = ifelse(state_abbr == "NV", 94.1, pct_urban_population)) %>% 
   distinct()
 
 # Prepare state data for aggregation
@@ -293,6 +291,7 @@ state_aggregate_data <- state_aggregate_data |>
 # Join with demographic data from state entities
 state_aggregate_data <- state_aggregate_data |>
   left_join(state_demographics, by = c("state_name", "state_abbr")) |>
+  
   # Add year and entity_type
   mutate(
     year = 2023,
