@@ -1,86 +1,69 @@
 library(tidyverse)
 library(jsonlite)
 
-#compare files with Thuy's github
+state_aggregated <- readRDS("output/state_aggregated.rds")
+overall_totals <- readRDS("output/overall_totals.RDS")
+state_entity_type_summary <- readRDS("output/state_entity_type_summary.RDS")
+# <- readRDS("output/state_aggregated.rds")
+# <- readRDS("output/state_aggregated.rds")
+# <- readRDS("output/state_aggregated.rds")
 
-state_tn <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250721_1315.csv") %>% 
-  arrange(state.name) %>% 
-  select(-1)
+####Chart 1: Heatmap for per capita Total Liabilities####
+# (Aggregate State and Local by state)
 
-state_jc <- read_csv("input/all_states_2023.csv") %>% 
-  arrange(state.name) %>% 
-  select(-1)
+state_aggregated %>% 
+  select(state_abbr, state_name, total_liabilities, population) %>% 
+  mutate(percap_total_liabilities = round(total_liabilities/population)) %>% 
+  arrange(percap_total_liabilities) %>% write.csv("output/data_wrapper/chart1_percap_total_liabilities.csv")
 
-identical(state_tn, state_jc)  
+####Chart 2: Composition of State and Local Government Debt####
 
-df_remote <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250721_1045.csv") %>% 
-  arrange(state.name, name) %>% 
-  select(-1)
+# Extract values
+total <- overall_totals$non_current_liabilities
+pension <- overall_totals$pension_liability
+opeb <- overall_totals$opeb_liability
+bond_loans_notes <- overall_totals$bond_loans_notes
+comp_abs <- overall_totals$compensated_absences
+other <- total - (pension + opeb + bond_loans_notes + comp_abs)
 
-df_local <- read_csv("input/all_counties_2023.csv") %>% 
-  arrange(state.name, name) %>% 
-  select(-1)
+# dataframe
+pie_df <- tibble(
+  component = c("Net Pension Liability", "Net OPEB Liability", 
+                "Bonds, Loans, Notes", "Compensated Absences", "Other"),
+  value = c(pension, opeb, bond_loans_notes, comp_abs, other)
+) %>%
+  mutate(
+    percentage = round(100 * value / total, 1),
+    label = paste0(component, " (", percentage, "%)"),
+    formatted = case_when(
+      value >= 1e12 ~ paste0(round(value/1e12, 1), "T"),
+      value >= 1e9  ~ paste0(round(value/1e9, 1), "B"),
+      value >= 1e6  ~ paste0(round(value/1e6, 1), "M"),
+      TRUE ~ as.character(value)
+    )
+  )
 
-library(dplyr)
+pie_df %>% write.csv("output/data_wrapper/chart2_Composition_State_Local_Gov_Debt.csv")
 
-# Sort them by a stable key (optional, but keeps results consistent)
-df_local_sorted <- df_local %>% arrange(state.name, state)
-df_remote_sorted <- df_remote %>% arrange(state.name, state)
+####Table 1.1: Aggregate Total State and Local Debt####
+#Variable: Total Liabilities 
+#State Name,Aggregate Total Debt,Aggregate Debt per Capita   
 
-df_local %>%
-  filter(
-    duplicated(across(c(state.name, name, id))) |
-      duplicated(across(c(state.name, name, id)), fromLast = TRUE)
-  ) %>% View()
+state_entity_type_summary %>% filter(entity_type == "Overall") %>% 
+  select(state_name, total_liabilities, population) %>% 
+  mutate(
+    # Convert to billions and format with commas + "B"
+    Aggregate_Total_Debt = paste0(format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    
+    # Per capita (keep as number with commas)
+    Aggregate_Debt_per_Capita = format(round(total_liabilities / population), big.mark = ",")
+  ) %>%
+  arrange(desc(total_liabilities)) %>% slice(1:10) %>% 
+  select(state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>%
+  rename(`State Name` = state_name,
+         `Aggregate Total Debt` = Aggregate_Total_Debt,
+         `Aggregate Debt per Capita` = Aggregate_Debt_per_Capita)
 
-#check dup
-df_remote %>%
-  filter(
-    duplicated(across(c(state.name, name))) |
-      duplicated(across(c(state.name, name)), fromLast = TRUE)
-  ) %>% View()
 
 
-#muni
-muni_tn <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250721_1133.csv")
 
-muni_jc <- read_csv("input/all_municipalities_2023.csv") %>% 
-  filter(name %in% c("indiantown", "jea", "westfield township"))
-
-#school 
-school_tn <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250722_2023.csv") %>% 
-  select(-1)
-school_jc <- read_csv("input/all_schooldistricts_2023.csv") %>% 
-  select(-1)
-  
-  
-setdiff(df_local$id, df_remote$id)
-setdiff(df_remote$id, df_local$id)
-
-df_local %>% 
-  filter(duplicated(id))
-
-sum(df_local$total_liabilities, na.rm = TRUE)
-sum(df_remote$total_liabilities, na.rm = TRUE)
-# Rows in remote but not in local
-extra_row <- anti_join(df_remote_sorted, df_local_sorted)
-
-# Optionally: check if there's anything in local but not remote
-missing_row <- anti_join(df_local_sorted, df_remote_sorted)
-
-identical(county_tn, county_jc)
-
-# Show differences if not identical
-if (!identical(df_local, df_remote)) {
-  # Show differences in structure
-  print(paste("Shape local:", paste(dim(df_local), collapse = " x ")))
-  print(paste("Shape remote:", paste(dim(df_remote), collapse = " x ")))
-  
-  # Compare column names
-  print(setdiff(names(df_local), names(df_remote)))
-  print(setdiff(names(df_remote), names(df_local)))
-  
-  # Compare actual content
-  diffs <- anti_join(df_local, df_remote)
-  print(head(diffs))
-}

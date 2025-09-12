@@ -2,17 +2,17 @@ library(tidyverse)
 library(jsonlite)
 
 # Read all data files
-state_data <- read_csv("input/all_states_2023.csv")
-state_data <- state_data[, -1]
+state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250908_1333.csv") %>% 
+  select(-1)
 
-county_data <- read_csv("input/all_counties_2023.csv")
-county_data <- county_data[, -1]
+county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
+  select(-1)
 
-municipal_data <- read_csv("input/all_municipalities_2023.csv")
-municipal_data <- municipal_data[, -1]
+municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
+  select(-1)
 
-school_district_data <- read_csv("input/all_schooldistricts_2023.csv")
-school_district_data <- school_district_data[, -1]
+school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250911_1849.csv") %>% 
+  select(-1)
 
 # Process state data
 state_data <- state_data |>
@@ -344,3 +344,4 @@ overall_totals <- list(
 overall_totals_json <- toJSON(overall_totals, pretty = TRUE, auto_unbox = TRUE)
 overall_totals_json <- paste0("export default ", overall_totals_json)
 write(overall_totals_json, "output/simplified_summary.js")
+saveRDS(overall_totals, "output/overall_totals.RDS")

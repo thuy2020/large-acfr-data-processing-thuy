@@ -2,24 +2,21 @@ library(tidyverse)
 library(jsonlite)
 
 # Read all data files
-state_data <- read_csv("input/all_states_2023.csv")
-state_data <- state_data[, -1]
+state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250908_1333.csv") %>% 
+  select(-1)
 
-county_data <- read_csv("input/all_counties_2023.csv")
-county_data <- county_data[, -1]
+county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
+  select(-1)
 
-municipal_data <- read_csv("input/all_municipalities_2023.csv")
-municipal_data <- municipal_data[, -1]
+municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
+  select(-1)
 
-school_district_data <- read_csv("input/all_schooldistricts_2023.csv")
-school_district_data <- school_district_data[, -1]
+school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250911_1849.csv") %>% 
+  select(-1)
 
 # Process state data
 state_data <- state_data |>
   filter(year == 2023) |>
-  mutate(
-    flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
-  ) |>
   filter(flg_acfr == 1) |>
   rename(
     state_abbr = state.abb,
@@ -195,7 +192,7 @@ school_district_data <- school_district_data |>
     pension_liability = net_net_pension_liability,
     opeb_liability = net_net_opeb_liability
   ) |>
-  # Use enrollment_22 as population for school districts
+  # Use enrollment_23 as population for school districts
   mutate(
     population = enrollment_23
   ) |>
@@ -628,9 +625,13 @@ overall_state_summary <- state_entity_type_summary |>
   )
 
 state_entity_type_summary <- bind_rows(state_entity_type_summary, overall_state_summary) |>
-  arrange(state_abbr, state_name, factor(entity_type, levels = c("Overall", "State", "County", "Municipality", "School District"))) # Arrange to group by state and then by entity type, ensuring Overall is last
+  arrange(state_abbr, state_name, factor(entity_type, levels = c("Overall", 
+                                                                 "State", "County", "Municipality", "School District"))) %>%  # Arrange to group by state and then by entity type, ensuring Overall is last
+  mutate(population = ifelse(state_abbr == "DC", 689546, population))
+
 
 state_entity_type_json <- toJSON(state_entity_type_summary,
                                  pretty = TRUE, auto_unbox = TRUE)
 state_entity_type_json <- paste0("export default ", state_entity_type_json)
 write(state_entity_type_json, "output/state_summary_data.js")
+saveRDS(state_entity_type_summary, "output/state_entity_type_summary.RDS")
