@@ -53,6 +53,8 @@ pie_df %>% write.csv("output/data_wrapper/chart2_Composition_State_Local_Gov_Deb
 state_entity_type_summary %>% 
   filter(entity_type == "Overall") %>% 
   select(state_name, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities)) %>% 
+  slice(1:10) %>% 
   mutate(
     # Convert to billions and format with commas + "B"
     Aggregate_Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
@@ -60,8 +62,6 @@ state_entity_type_summary %>%
     # Per capita (keep as number with commas)
     Aggregate_Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
   ) %>%
-  arrange(desc(total_liabilities)) %>% 
-  slice(1:10) %>% 
   select(state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
   rename(
     `State Name` = state_name,
@@ -75,19 +75,16 @@ state_entity_type_summary %>%
 state_entity_type_summary %>% 
   filter(entity_type == "Overall") %>% 
   select(state_name, non_current_liabilities, population) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
+  slice(1:10) %>% 
   mutate(
-    # Convert to billions and format with commas + "B"
     Aggregate_Total_Debt = paste0(
       "$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"
     ),
-    
-    # Per capita (keep as number with commas)
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(non_current_liabilities / population), big.mark = ",")
     )
   ) %>%
-  arrange(desc(non_current_liabilities)) %>% 
-  slice(1:10) %>% 
   select(state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
   rename(
     `State Name` = state_name,
@@ -101,14 +98,13 @@ state_entity_type_summary %>%
 state_entity_type_summary %>% 
   filter(entity_type == "State") %>% 
   select(state_name, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities)) %>% 
   mutate(
-    # Convert to billions and format with commas + "B"
     state_gov_Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
     
-    # Per capita (keep as number with commas)
     state_gov_Total_Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
   ) %>%
-  arrange(desc(total_liabilities)) %>% 
+  
   select(state_name, state_gov_Total_Debt, state_gov_Total_Debt_per_Capita) %>% 
 rename(
   `State Name` = state_name,
@@ -119,18 +115,16 @@ rename(
 
 ####Table 1.4: State Government Long-Term Debt####
 
-
 state_entity_type_summary %>% 
   filter(entity_type == "State") %>% 
   select(state_name, non_current_liabilities, population) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
   mutate(
-    # Convert to billions and format with commas + "B"
     state_gov_Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
     
-    # Per capita (keep as number with commas)
     state_gov_Total_Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
   ) %>%
-  arrange(desc(non_current_liabilities)) %>% 
+  
   select(state_name, state_gov_Total_Debt, state_gov_Total_Debt_per_Capita) %>% 
   rename(
     `State Name` = state_name,
@@ -146,12 +140,11 @@ county_data %>% select(state_name, entity_name, population, total_liabilities) %
   slice(1:50) %>% 
   mutate(
     entity_name = str_to_title(entity_name),
-    # Convert liabilities to billions with formatting
+
     Aggregate_Total_Debt = paste0(
       "$", format(round(total_liabilities / 1e9, 1), big.mark = ","), "B"
     ),
     
-    # Per capita liabilities
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(total_liabilities / population), big.mark = ",")
     )
@@ -171,12 +164,11 @@ county_data %>% select(state_name, entity_name, population, non_current_liabilit
   slice(1:50) %>% 
   mutate(
     entity_name = str_to_title(entity_name),
-    # Convert liabilities to billions with formatting
+
     Aggregate_Total_Debt = paste0(
       "$", format(round(non_current_liabilities / 1e9, 1), big.mark = ","), "B"
     ),
     
-    # Per capita liabilities
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(non_current_liabilities / population), big.mark = ",")
     )
@@ -196,11 +188,9 @@ municipal_data %>% select(state_name, entity_name, population, total_liabilities
   slice(1:50) %>% 
   mutate(
     entity_name = str_to_title(entity_name),
-    # Convert liabilities to billions with formatting
     Aggregate_Total_Debt = paste0(
       "$", format(round(total_liabilities / 1e9, 1), big.mark = ","), "B"
     ),
-    # Per capita liabilities
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(total_liabilities / population), big.mark = ",")
     )
@@ -220,11 +210,9 @@ municipal_data %>% select(state_name, entity_name, population, non_current_liabi
   slice(1:50) %>% 
   mutate(
     entity_name = str_to_title(entity_name),
-    # Convert liabilities to billions with formatting
     Aggregate_Total_Debt = paste0(
       "$", format(round(non_current_liabilities / 1e9, 1), big.mark = ","), "B"
     ),
-    # Per capita liabilities
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(non_current_liabilities / population), big.mark = ",")
     )
@@ -243,11 +231,9 @@ school_district_data %>% select(state_name, entity_name, population, total_liabi
   slice(1:50) %>% 
   mutate(
     entity_name = str_to_title(entity_name),
-    # Convert liabilities to billions with formatting
     Aggregate_Total_Debt = paste0(
       "$", format(round(total_liabilities / 1e9, 1), big.mark = ","), "B"
     ),
-    # Per capita liabilities
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(total_liabilities / population), big.mark = ",")
     )
@@ -267,18 +253,16 @@ school_district_data %>% select(state_name, entity_name, population, non_current
   slice(1:50) %>% 
   mutate(
     entity_name = str_to_title(entity_name),
-    # Convert liabilities to billions with formatting
     Aggregate_Total_Debt = paste0(
       "$", format(round(non_current_liabilities / 1e9, 1), big.mark = ","), "B"
     ),
-    # Per capita liabilities
     Aggregate_Debt_per_Capita = paste0(
       "$", format(round(non_current_liabilities / population), big.mark = ",")
     )
   ) %>%
   select(
     `School District Name` = entity_name,
-    State = state_name,
+     State = state_name,
     `School District Gov Long Term Debt` = Aggregate_Total_Debt,
     `School District Gov Long Term Debt per Capita ` = Aggregate_Debt_per_Capita
   ) %>% 
@@ -286,9 +270,199 @@ school_district_data %>% select(state_name, entity_name, population, non_current
 
 ####Table 2.1: Ranking of State and Local Debt####
 
-state_data
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities)) %>% 
+  mutate(Rank = row_number()) %>% 
+  
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  
+  select(Rank, state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate Total Debt` = Aggregate_Total_Debt,
+    `Aggregate Debt per Capita` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.1_Ranking_state_local_Debt.csv", row.names = FALSE)
 
+####Table 2.2: Ranking of State and Local Debt per Capita####
 
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Aggregate_Debt_per_Capita, Aggregate_Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate Debt per Capita` = Aggregate_Debt_per_Capita,
+    `Aggregate Total Debt` = Aggregate_Total_Debt
+  ) %>%
+  write.csv("output/data_wrapper/Table_2.2_Ranking_state_local_Debt_perCap.csv", row.names = FALSE)
 
+####Table 2.3: Ranking of State and Local Long-Term Debt####
 
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, non_current_liabilities, population) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
+  mutate(Rank = row_number()) %>% 
+  
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate Long Term Debt` = Aggregate_Total_Debt,
+    `Aggregate Long Term Debt per Capita` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.3_Ranking_state_local_Longterm_Debt.csv", row.names = FALSE)
 
+####Table 2.4: Ranking of State and Local Long Term Debt per Capita####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, non_current_liabilities, population) %>% 
+  arrange(desc(non_current_liabilities / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
+  ) %>%
+  
+  select(Rank, state_name, Aggregate_Debt_per_Capita, Aggregate_Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate Long Term Debt per Capita` = Aggregate_Debt_per_Capita,
+    `Aggregate Long Term Debt` = Aggregate_Total_Debt
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.4_Ranking_state_local_Longterm_Debt_perCap.csv", row.names = FALSE)
+
+####Table 2.5: Ranking of State and Local Pension Debt####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, pension_liability, population) %>% 
+  arrange(desc(pension_liability)) %>% 
+  mutate(Rank = row_number()) %>% 
+  
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(pension_liability / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(pension_liability / population), big.mark = ","))
+  ) %>%
+  
+  select(Rank, state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate Pension Debt per Capita` = Aggregate_Debt_per_Capita,
+    `Aggregate Total Pension Debt` = Aggregate_Total_Debt
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.5_Ranking_state_local_Pension_Debt.csv", row.names = FALSE)
+
+####Table 2.6: Ranking of State and Local Pension Debt per Capita####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, pension_liability, population) %>% 
+  arrange(desc(pension_liability / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(pension_liability / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(pension_liability / population), big.mark = ","))
+  ) %>%
+  
+  select(Rank, state_name, Aggregate_Debt_per_Capita, Aggregate_Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate Pension Debt per Capita` = Aggregate_Debt_per_Capita,
+    `Aggregate Total Pension Debt` = Aggregate_Total_Debt
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.6_Ranking_state_local_Pension_Debt_perCap.csv", row.names = FALSE)
+
+####Table 2.7: Ranking of State and Local Other-Post Employment Benefit Debt####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, opeb_liability, population) %>% 
+  arrange(desc(opeb_liability)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(opeb_liability / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(opeb_liability / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate OPEB per Capita` = Aggregate_Debt_per_Capita,
+    `Aggregate Total OPEB` = Aggregate_Total_Debt
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.7_Ranking_state_local_OPEB_Debt.csv", row.names = FALSE)
+
+####Table 2.8: Ranking of State and Local Other-Post Employment Benefit Debt per cap####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, opeb_liability, population) %>%
+    arrange(desc(opeb_liability / population)) %>% 
+    mutate(Rank = row_number()) %>% 
+  mutate(
+    Aggregate_Total_Debt = paste0("$", format(round(opeb_liability / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Debt_per_Capita = paste0("$", format(round(opeb_liability / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Aggregate_Debt_per_Capita, Aggregate_Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Aggregate OPEB per Capita` = Aggregate_Debt_per_Capita,
+    `Aggregate Total OPEB` = Aggregate_Total_Debt
+  ) %>% 
+  write.csv("output/data_wrapper/Table_2.6_Ranking_state_local_OPEB_Debt_perCap.csv", row.names = FALSE)
+
+####Table 2.9: Ranking of State and Local Outstanding Bonds, Loans, & Notes ####
+  
+  state_entity_type_summary %>% 
+    filter(entity_type == "Overall") %>% 
+    select(state_name, bond_loans_notes, population) %>% 
+    arrange(desc(bond_loans_notes)) %>% 
+    mutate(Rank = row_number()) %>% 
+    mutate(
+      Aggregate_Total_Debt = paste0("$", format(round(bond_loans_notes / 1e9, 2), big.mark = ","), "B"),
+      Aggregate_Debt_per_Capita = paste0("$", format(round(bond_loans_notes / population), big.mark = ","))
+    ) %>%
+    select(Rank, state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+    rename(
+      `State` = state_name,
+      `Aggregate Bonds, Loans, & Notes per capita` = Aggregate_Debt_per_Capita,
+      `Aggregate Bonds, Loans, & Notes` = Aggregate_Total_Debt
+    ) %>% 
+  write.csv("output/data_wrapper/Table_2.9_Ranking_state_local_Aggregate Bonds_loans_Notes.csv", row.names = FALSE)
+  
+  ####Table 2.10: Ranking of State and Local Other-Post Employment Benefit Debt per cap####
+  
+  state_entity_type_summary %>% 
+    filter(entity_type == "Overall") %>% 
+    select(state_name, bond_loans_notes, population) %>%
+    arrange(desc(bond_loans_notes / population)) %>% 
+    mutate(Rank = row_number()) %>% 
+    mutate(
+      Aggregate_Total_Debt = paste0("$", format(round(bond_loans_notes / 1e9, 2), big.mark = ","), "B"),
+      Aggregate_Debt_per_Capita = paste0("$", format(round(bond_loans_notes / population), big.mark = ","))
+    ) %>%
+    select(Rank, state_name, Aggregate_Debt_per_Capita, Aggregate_Total_Debt) %>% 
+    rename(
+      `State` = state_name,
+      `Aggregate Bonds, Loans, & Notes per capita` = Aggregate_Debt_per_Capita,
+      `Aggregate Bonds, Loans, & Notes` = Aggregate_Total_Debt
+    ) %>% 
+  write.csv("output/data_wrapper/Table_2.10_Ranking_state_local_bonds_loans_notes_perCap.csv", row.names = FALSE)
+  
+  
