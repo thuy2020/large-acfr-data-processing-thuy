@@ -8,6 +8,7 @@ county_data <- readRDS("output/county_data.rds")
 municipal_data <- readRDS("output/municipal_data.rds")
 school_district_data <- readRDS("output/school_district_data.rds")
 
+state_data <- readRDS("output/state_data.rds")
 ####Chart 1: Heatmap for per capita Total Liabilities####
 # (Aggregate State and Local by state)
 
@@ -282,3 +283,12 @@ school_district_data %>% select(state_name, entity_name, population, non_current
     `School District Gov Long Term Debt per Capita ` = Aggregate_Debt_per_Capita
   ) %>% 
   write.csv("output/data_wrapper/Table_5.4_School_District_Longterm_Debt.csv", row.names = FALSE)
+
+####Table 2.1: Ranking of State and Local Debt####
+
+state_data
+
+
+
+
+

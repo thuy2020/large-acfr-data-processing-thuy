@@ -2,7 +2,7 @@ library(tidyverse)
 library(jsonlite)
 
 # Read all data files
-state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250908_1333.csv") %>% 
+state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250912_1109.csv") %>% 
   select(-1)
 
 county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
