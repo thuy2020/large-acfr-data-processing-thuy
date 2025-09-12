@@ -4,9 +4,9 @@ library(jsonlite)
 state_aggregated <- readRDS("output/state_aggregated.rds")
 overall_totals <- readRDS("output/overall_totals.RDS")
 state_entity_type_summary <- readRDS("output/state_entity_type_summary.RDS")
-# <- readRDS("output/state_aggregated.rds")
-# <- readRDS("output/state_aggregated.rds")
-# <- readRDS("output/state_aggregated.rds")
+county_data <- readRDS("output/county_data.rds")
+municipal_data <- readRDS("output/municipal_data.rds")
+school_district_data <- readRDS("output/school_district_data.rds")
 
 ####Chart 1: Heatmap for per capita Total Liabilities####
 # (Aggregate State and Local by state)
@@ -139,4 +139,146 @@ state_entity_type_summary %>%
   write.csv("output/data_wrapper/table1.4_state_gov_longterm_debt.csv", row.names = FALSE)
 
 ####Table 1.5: County Government Debt####
+#top 50 counties with the most total liabilities
+county_data %>% select(state_name, entity_name, population, total_liabilities) %>% 
+  arrange(desc(total_liabilities)) %>% 
+  slice(1:50) %>% 
+  mutate(
+    entity_name = str_to_title(entity_name),
+    # Convert liabilities to billions with formatting
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(total_liabilities / 1e9, 1), big.mark = ","), "B"
+    ),
+    
+    # Per capita liabilities
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(total_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  select(
+    `County Name` = entity_name,
+    State = state_name,
+    `County Gov Total Debt` = Aggregate_Total_Debt,
+    `County Gov Debt per Capita ` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_1.5_County_Government_Debt.csv", row.names = FALSE)
 
+####Table 1.6: County Government Long-Term Debt####
+
+county_data %>% select(state_name, entity_name, population, non_current_liabilities) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
+  slice(1:50) %>% 
+  mutate(
+    entity_name = str_to_title(entity_name),
+    # Convert liabilities to billions with formatting
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(non_current_liabilities / 1e9, 1), big.mark = ","), "B"
+    ),
+    
+    # Per capita liabilities
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(non_current_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  select(
+    `County Name` = entity_name,
+     State = state_name,
+    `County Gov Long Term Debt` = Aggregate_Total_Debt,
+    `County Gov Long Term Debt per Capita ` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_1.6_County_Government_longterm_Debt.csv", row.names = FALSE)
+  
+####Table 5.1: City Government Debt####
+#top 50 cities with the most total liabilities
+municipal_data %>% select(state_name, entity_name, population, total_liabilities) %>% 
+  arrange(desc(total_liabilities)) %>% 
+  slice(1:50) %>% 
+  mutate(
+    entity_name = str_to_title(entity_name),
+    # Convert liabilities to billions with formatting
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(total_liabilities / 1e9, 1), big.mark = ","), "B"
+    ),
+    # Per capita liabilities
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(total_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  select(
+    `City Name` = entity_name,
+    State = state_name,
+    `City Gov Total Debt` = Aggregate_Total_Debt,
+    `City Gov Debt per Capita ` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_5.1_City_Government_Debt.csv", row.names = FALSE)
+
+####Table 5.2: City Government Long-Term Debt####
+
+municipal_data %>% select(state_name, entity_name, population, non_current_liabilities) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
+  slice(1:50) %>% 
+  mutate(
+    entity_name = str_to_title(entity_name),
+    # Convert liabilities to billions with formatting
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(non_current_liabilities / 1e9, 1), big.mark = ","), "B"
+    ),
+    # Per capita liabilities
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(non_current_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  select(
+    `City Name` = entity_name,
+    State = state_name,
+    `City Gov Long Term Debt` = Aggregate_Total_Debt,
+    `City Gov Long Term Debt per Capita ` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_5.2_City_Government_Longterm_Debt.csv", row.names = FALSE)
+
+####Table 5.3: School District Debt####
+school_district_data %>% select(state_name, entity_name, population, total_liabilities) %>% 
+  arrange(desc(total_liabilities)) %>% 
+  slice(1:50) %>% 
+  mutate(
+    entity_name = str_to_title(entity_name),
+    # Convert liabilities to billions with formatting
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(total_liabilities / 1e9, 1), big.mark = ","), "B"
+    ),
+    # Per capita liabilities
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(total_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  select(
+    `School District Name` = entity_name,
+    State = state_name,
+    `School District Total Debt` = Aggregate_Total_Debt,
+    `School District Debt per Capita ` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_5.3_School_District_Debt.csv", row.names = FALSE)
+
+####Table 5.2: City Government Long-Term Debt####
+
+school_district_data %>% select(state_name, entity_name, population, non_current_liabilities) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
+  slice(1:50) %>% 
+  mutate(
+    entity_name = str_to_title(entity_name),
+    # Convert liabilities to billions with formatting
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(non_current_liabilities / 1e9, 1), big.mark = ","), "B"
+    ),
+    # Per capita liabilities
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(non_current_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  select(
+    `School District Name` = entity_name,
+    State = state_name,
+    `School District Gov Long Term Debt` = Aggregate_Total_Debt,
+    `School District Gov Long Term Debt per Capita ` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_5.4_School_District_Longterm_Debt.csv", row.names = FALSE)
