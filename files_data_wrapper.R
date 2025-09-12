@@ -464,5 +464,182 @@ state_entity_type_summary %>%
       `Aggregate Bonds, Loans, & Notes` = Aggregate_Total_Debt
     ) %>% 
   write.csv("output/data_wrapper/Table_2.10_Ranking_state_local_bonds_loans_notes_perCap.csv", row.names = FALSE)
-  
-  
+
+####Table 3.1: Ranking of State Government Total Debt####
+state_data %>% 
+  select(state_name, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Total Debt` = Total_Debt,
+    `Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.1_Ranking_state_total_debt.csv", row.names = FALSE)
+
+####Table 3.2: Ranking of State Government Total Debt per Capita####
+
+state_data %>% 
+  select(state_name, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Debt_per_Capita, Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Total Debt` = Total_Debt,
+    `Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.2_Ranking_state_total_debt_perCap.csv", row.names = FALSE)
+
+
+####Table 3.3: Ranking of State Government Long-Term Debt####
+state_data %>% 
+  select(state_name, non_current_liabilities, population) %>% 
+  arrange(desc(non_current_liabilities)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Total Long Term Debt` = Total_Debt,
+    `Long Term Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.3_Ranking_state_longterm_debt.csv", row.names = FALSE)
+
+####Table 3.4: Ranking of State Government Long-Term Debt per Capita####
+
+state_data %>% 
+  select(state_name, non_current_liabilities, population) %>% 
+  arrange(desc(non_current_liabilities / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Total Long Term Debt` = Total_Debt,
+    `Long Term Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.4_Ranking_state_longterm_debt_perCap.csv", row.names = FALSE)
+
+####Table 3.5: Ranking of State Government Pension Debt####
+state_data %>% 
+  select(state_name, pension_liability, population) %>% 
+  arrange(desc(pension_liability)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(pension_liability / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(pension_liability / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Total Pension Debt` = Total_Debt,
+    `Pension Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.5_Ranking_state_pension_debt.csv", row.names = FALSE)
+
+####Table 3.6: Ranking of State Government Pension Debt per Capita####
+
+state_data %>% 
+  select(state_name, pension_liability, population) %>% 
+  arrange(desc(pension_liability / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(pension_liability / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(pension_liability / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Debt_per_Capita, Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Total Pension Debt` = Total_Debt,
+    `Pension Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.6_Ranking_state_pension_debt_perCap.csv", row.names = FALSE)
+
+####Table 3.7: Ranking of State Government OPEB Debt####
+state_data %>% 
+  select(state_name, opeb_liability, population) %>% 
+  arrange(desc(opeb_liability)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(opeb_liability / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(opeb_liability / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Total OPEB` = Total_Debt,
+    `OPEB per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.7_Ranking_state_OPEB_debt.csv", row.names = FALSE)
+
+####Table 3.8: Ranking of State Government OPEB Debt per Capita####
+
+state_data %>% 
+  select(state_name, opeb_liability, population) %>% 
+  arrange(desc(opeb_liability / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(opeb_liability / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(opeb_liability / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Debt_per_Capita, Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Total OPEB` = Total_Debt,
+    `OPEB per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.8_Ranking_state_OPEB_debt_perCap.csv", row.names = FALSE)
+
+####Table 3.9: Ranking of State Government Outstanding Bonds, Loans, & Notes####
+state_data %>% 
+  select(state_name, bond_loans_notes, population) %>% 
+  arrange(desc(bond_loans_notes)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(bond_loans_notes / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(bond_loans_notes / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  rename(
+    `State` = state_name,
+    `Bonds, Loans, & Notes` = Total_Debt,
+    `Bonds, Loans, & Notes  per capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_3.9_Ranking_state_bondsloansnotes_debt.csv", row.names = FALSE)
+
+####Table 3.10: Ranking of State Government Outstanding Bonds, Loans, & Notes per Capita####
+
+state_data %>% 
+  select(state_name, bond_loans_notes, population) %>% 
+  arrange(desc(bond_loans_notes / population)) %>% 
+  mutate(Rank = row_number()) %>% 
+  mutate(
+    Total_Debt = paste0("$", format(round(bond_loans_notes / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(bond_loans_notes / population), big.mark = ","))
+  ) %>%
+  select(Rank, state_name, Debt_per_Capita, Total_Debt) %>% 
+  rename(
+    `State` = state_name,
+    `Bonds, Loans, & Notes` = Total_Debt,
+    `Bonds, Loans, & Notes  per capita` = Debt_per_Capita
+  ) %>% View()
+  write.csv("output/data_wrapper/Table_3.10_Ranking_state_bondsloansnotes_debt_perCap.csv", row.names = FALSE)
+
+
+
