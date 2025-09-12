@@ -1,6 +1,6 @@
 library(tidyverse)
 library(jsonlite)
-
+source("functions.R")
 state_aggregated <- readRDS("output/state_aggregated.rds")
 overall_totals <- readRDS("output/overall_totals.RDS")
 state_entity_type_summary <- readRDS("output/state_entity_type_summary.RDS")
@@ -9,6 +9,9 @@ municipal_data <- readRDS("output/municipal_data.rds")
 school_district_data <- readRDS("output/school_district_data.rds")
 
 state_data <- readRDS("output/state_data.rds")
+county_data <- readRDS("output/county_data.rds")
+municipal_data <- readRDS("output/municipal_data.rds")
+school_district_data <- readRDS("output/school_district_data.rds")
 ####Chart 1: Heatmap for per capita Total Liabilities####
 # (Aggregate State and Local by state)
 
@@ -528,7 +531,7 @@ state_data %>%
     Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
     Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
   ) %>%
-  select(Rank, state_name, Total_Debt, Debt_per_Capita) %>% 
+  select(Rank, state_name, Debt_per_Capita, Total_Debt) %>% 
   rename(
     `State` = state_name,
     `Total Long Term Debt` = Total_Debt,
@@ -638,8 +641,13 @@ state_data %>%
     `State` = state_name,
     `Bonds, Loans, & Notes` = Total_Debt,
     `Bonds, Loans, & Notes  per capita` = Debt_per_Capita
-  ) %>% View()
+  ) %>% 
   write.csv("output/data_wrapper/Table_3.10_Ranking_state_bondsloansnotes_debt_perCap.csv", row.names = FALSE)
 
+#### County → Tables 4.1–4.10####
+make_top50_tables(county_data, "county", "4")
+
+#### Municipalities → Tables 5.1–5.10####
+make_top50_tables(municipal_data, "municipal", "5")
 
 
