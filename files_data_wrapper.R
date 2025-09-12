@@ -49,21 +49,94 @@ pie_df %>% write.csv("output/data_wrapper/chart2_Composition_State_Local_Gov_Deb
 #Variable: Total Liabilities 
 #State Name,Aggregate Total Debt,Aggregate Debt per Capita   
 
-state_entity_type_summary %>% filter(entity_type == "Overall") %>% 
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
   select(state_name, total_liabilities, population) %>% 
   mutate(
     # Convert to billions and format with commas + "B"
-    Aggregate_Total_Debt = paste0(format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Aggregate_Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
     
     # Per capita (keep as number with commas)
-    Aggregate_Debt_per_Capita = format(round(total_liabilities / population), big.mark = ",")
+    Aggregate_Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
   ) %>%
-  arrange(desc(total_liabilities)) %>% slice(1:10) %>% 
-  select(state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>%
-  rename(`State Name` = state_name,
-         `Aggregate Total Debt` = Aggregate_Total_Debt,
-         `Aggregate Debt per Capita` = Aggregate_Debt_per_Capita)
+  arrange(desc(total_liabilities)) %>% 
+  slice(1:10) %>% 
+  select(state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+  rename(
+    `State Name` = state_name,
+    `Aggregate Total Debt` = Aggregate_Total_Debt,
+    `Aggregate Debt per Capita` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/table1.1_Aggregate_State_Local_total_liabilities.csv", row.names = FALSE)
+
+####Table 1.2: Aggregate State and Local Long-Term Debt####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "Overall") %>% 
+  select(state_name, non_current_liabilities, population) %>% 
+  mutate(
+    # Convert to billions and format with commas + "B"
+    Aggregate_Total_Debt = paste0(
+      "$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"
+    ),
+    
+    # Per capita (keep as number with commas)
+    Aggregate_Debt_per_Capita = paste0(
+      "$", format(round(non_current_liabilities / population), big.mark = ",")
+    )
+  ) %>%
+  arrange(desc(non_current_liabilities)) %>% 
+  slice(1:10) %>% 
+  select(state_name, Aggregate_Total_Debt, Aggregate_Debt_per_Capita) %>% 
+  rename(
+    `State Name` = state_name,
+    `Aggregate Total Debt` = Aggregate_Total_Debt,
+    `Aggregate Debt per Capita` = Aggregate_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/table1.2_Aggregate_State_Local_non_current_liabilities.csv", row.names = FALSE)
+
+####Table 1.3: State Government Debt####
+
+state_entity_type_summary %>% 
+  filter(entity_type == "State") %>% 
+  select(state_name, total_liabilities, population) %>% 
+  mutate(
+    # Convert to billions and format with commas + "B"
+    state_gov_Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    
+    # Per capita (keep as number with commas)
+    state_gov_Total_Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  arrange(desc(total_liabilities)) %>% 
+  select(state_name, state_gov_Total_Debt, state_gov_Total_Debt_per_Capita) %>% 
+rename(
+  `State Name` = state_name,
+  `State Gov Total Debt` = state_gov_Total_Debt, 
+  `State Gov Debt per Capita` = state_gov_Total_Debt_per_Capita
+) %>% 
+  write.csv("output/data_wrapper/table1.3_state_gov_debt.csv", row.names = FALSE)
+
+####Table 1.4: State Government Long-Term Debt####
 
 
+state_entity_type_summary %>% 
+  filter(entity_type == "State") %>% 
+  select(state_name, non_current_liabilities, population) %>% 
+  mutate(
+    # Convert to billions and format with commas + "B"
+    state_gov_Total_Debt = paste0("$", format(round(non_current_liabilities / 1e9, 2), big.mark = ","), "B"),
+    
+    # Per capita (keep as number with commas)
+    state_gov_Total_Debt_per_Capita = paste0("$", format(round(non_current_liabilities / population), big.mark = ","))
+  ) %>%
+  arrange(desc(non_current_liabilities)) %>% 
+  select(state_name, state_gov_Total_Debt, state_gov_Total_Debt_per_Capita) %>% 
+  rename(
+    `State Name` = state_name,
+    `State Gov Long Term Debt` = state_gov_Total_Debt, 
+    `State Gov Long Term Debt per Capita` = state_gov_Total_Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/table1.4_state_gov_longterm_debt.csv", row.names = FALSE)
 
+####Table 1.5: County Government Debt####
 
