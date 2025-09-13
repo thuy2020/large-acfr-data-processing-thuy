@@ -4,14 +4,22 @@ source("functions.R")
 state_aggregated <- readRDS("output/state_aggregated.rds")
 overall_totals <- readRDS("output/overall_totals.RDS")
 state_entity_type_summary <- readRDS("output/state_entity_type_summary.RDS")
-county_data <- readRDS("output/county_data.rds")
-municipal_data <- readRDS("output/municipal_data.rds")
-school_district_data <- readRDS("output/school_district_data.rds")
-
 state_data <- readRDS("output/state_data.rds")
 county_data <- readRDS("output/county_data.rds")
 municipal_data <- readRDS("output/municipal_data.rds")
 school_district_data <- readRDS("output/school_district_data.rds")
+
+#####
+school_district_data %>% filter(is.na(population) | population == 0) %>% 
+  filter(total_liabilities >0) %>% 
+  filter(!str_detect(entity_name, "boces|(service center)|
+                     (educational cooperative)|
+                     (county board of cooperative educational services)")) %>% 
+  select(state_abbr, entity_name, entity_id, total_liabilities) %>% 
+View()
+######
+
+
 ####Chart 1: Heatmap for per capita Total Liabilities####
 # (Aggregate State and Local by state)
 
@@ -428,7 +436,7 @@ state_entity_type_summary %>%
     `Aggregate OPEB per Capita` = Aggregate_Debt_per_Capita,
     `Aggregate Total OPEB` = Aggregate_Total_Debt
   ) %>% 
-  write.csv("output/data_wrapper/Table_2.6_Ranking_state_local_OPEB_Debt_perCap.csv", row.names = FALSE)
+  write.csv("output/data_wrapper/Table_2.8_Ranking_state_local_OPEB_Debt_perCap.csv", row.names = FALSE)
 
 ####Table 2.9: Ranking of State and Local Outstanding Bonds, Loans, & Notes ####
   
@@ -650,4 +658,5 @@ make_top50_tables(county_data, "county", "4")
 #### Municipalities → Tables 5.1–5.10####
 make_top50_tables(municipal_data, "municipal", "5")
 
-
+#### Schools → Tables 6.1–6.10####
+make_top50_tables(school_district_data, "school_districts", "6")

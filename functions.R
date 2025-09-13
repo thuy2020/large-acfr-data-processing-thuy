@@ -76,44 +76,44 @@ make_top50_tables <- function(data, category, table_prefix) {
 
 
 # ####total debt####
-# county_data %>% 
-#   select(entity_name, state_abbr, total_liabilities, population) %>% 
-#   arrange(desc(total_liabilities)) %>% 
-#   slice(1:50) %>% 
-#   mutate(Rank = row_number()) %>% 
-#   mutate(
-#     entity_name = str_to_title(entity_name),
-#     Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
-#     Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
-#   ) %>%
-#   select(Rank, entity_name, state_abbr, Total_Debt, Debt_per_Capita) %>% 
-#   rename(
-#     `Name` = entity_name,
-#     `State abb` = state_abbr,
-#     `Total Debt` = Total_Debt,
-#     `Debt per Capita` = Debt_per_Capita
-#   ) %>% 
-#   write.csv("output/data_wrapper/Table_4.1_Ranking_county_debt.csv", row.names = FALSE)
+school_district_data %>%
+  select(entity_name, state_abbr, total_liabilities, population) %>% 
+  arrange(desc(total_liabilities)) %>%
+  slice(1:50) %>% 
+  mutate(Rank = row_number()) %>%
+  mutate(
+    entity_name = str_to_title(entity_name),
+    Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, entity_name, state_abbr, Total_Debt, Debt_per_Capita) %>%
+  rename(
+    `Name` = entity_name,
+    `State abb` = state_abbr,
+    `Total Debt` = Total_Debt,
+    `Debt per Capita` = Debt_per_Capita
+  ) %>% 
+  write.csv("output/data_wrapper/Table_4.1_Ranking_county_debt.csv", row.names = FALSE)
 # 
 # ####debt per cap####
-# county_data %>% 
-#   select(entity_name, state_abbr, total_liabilities, population) %>%  
-#   arrange(desc(total_liabilities / population)) %>% 
-#   slice(1:50) %>% 
-#   mutate(Rank = row_number()) %>% 
-#   mutate(
-#     entity_name = str_to_title(entity_name),
-#     Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
-#     Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
-#   ) %>%
-#   select(Rank, entity_name, state_abbr, Debt_per_Capita, Total_Debt) %>% 
-#   rename(
-#     `Name` = entity_name,
-#     `State abb` = state_abbr,
-#     `Total Debt` = Total_Debt,
-#     `Debt per Capita` = Debt_per_Capita
-#   ) %>% 
-#   write.csv("output/data_wrapper/Table_4.2_Ranking_county_debt_perCap.csv", row.names = FALSE)
+school_district_data %>%
+  select(entity_name, state_abbr, total_liabilities, population) %>%
+  arrange(desc(total_liabilities / population)) %>%
+  slice(1:50) %>%
+  mutate(Rank = row_number()) %>%
+  mutate(
+    entity_name = str_to_title(entity_name),
+    Total_Debt = paste0("$", format(round(total_liabilities / 1e9, 2), big.mark = ","), "B"),
+    Debt_per_Capita = paste0("$", format(round(total_liabilities / population), big.mark = ","))
+  ) %>%
+  select(Rank, entity_name, state_abbr, Debt_per_Capita, Total_Debt) %>%
+  rename(
+    `Name` = entity_name,
+    `State abb` = state_abbr,
+    `Total Debt` = Total_Debt,
+    `Debt per Capita` = Debt_per_Capita
+  ) %>%
+  write.csv("output/data_wrapper/Table_4.2_Ranking_county_debt_perCap.csv", row.names = FALSE)
 # 
 # ####long term debt####
 # county_data %>% 

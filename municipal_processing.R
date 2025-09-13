@@ -1,9 +1,9 @@
 library(tidyverse)
 library(jsonlite)
+# Read all data files
 
-# read csv
 municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
-select(-1)
+  select(-1)
 
 
 municipal_data <- municipal_data |>

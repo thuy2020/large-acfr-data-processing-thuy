@@ -1,9 +1,10 @@
 library(tidyverse)
 library(jsonlite)
+# Read all data files
 
-# read csv
-school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250911_1849.csv") %>% 
-select(-1)
+
+school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250913_1325.csv") %>% 
+  select(-1)
 
 # filter for only 2023 data, standardize names
 school_district_data <- school_district_data |>

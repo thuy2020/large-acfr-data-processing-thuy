@@ -1,7 +1,6 @@
 library(tidyverse)
 library(jsonlite)
 
-# read csv
 state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250912_1109.csv") %>% 
   select(-1)
 
