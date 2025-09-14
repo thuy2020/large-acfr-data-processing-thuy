@@ -1,12 +1,9 @@
 library(tidyverse)
 library(jsonlite)
-# Read all data files
-
-municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
-  select(-1)
+source("read_in_data.R")
 
 
-municipal_data <- municipal_data |>
+municipal_data <- municipal_data_input |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,

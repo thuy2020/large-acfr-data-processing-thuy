@@ -12,9 +12,12 @@ school_district_data <- readRDS("output/school_district_data.rds")
 #####
 school_district_data %>% filter(is.na(population) | population == 0) %>% 
   filter(total_liabilities >0) %>% 
-  filter(!str_detect(entity_name, "boces|(service center)|
-                     (educational cooperative)|
-                     (county board of cooperative educational services)")) %>% 
+  filter(!str_detect(entity_name, "boces|(service center)|(cooperative educational services)|
+                     (educational cooperative)|(educational cooperative)|(technology center)|
+                     (county board of cooperative educational services)|(special education)|
+                     (preparatory school)|(educational service)|(education agency)|
+                     (county regional office)|(regional office of education)|(education service)|
+                     (career development)|(career education)|(special school)|(vocational)")) %>% 
   select(state_abbr, entity_name, entity_id, total_liabilities) %>% 
 View()
 ######

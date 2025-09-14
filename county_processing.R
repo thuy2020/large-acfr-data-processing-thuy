@@ -1,12 +1,9 @@
 library(tidyverse)
 library(jsonlite)
-# Read all data files
-
-county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
-  select(-1)
+source("read_in_data.R")
 
 # filter for only 2023 data, standardize names
-county_data <- county_data |>
+county_data <- county_data_input |>
   mutate(year = 2023)|>
   mutate(name = ifelse(is.na(name), name_census, name)) |>
   rename(

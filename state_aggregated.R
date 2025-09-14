@@ -1,20 +1,9 @@
 library(tidyverse)
 library(jsonlite)
-# Read all data files
-state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250912_1109.csv") %>% 
-  select(-1)
+source("read_in_data.R")
 
-county_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_counties_2023_20250909_2111.csv") %>% 
-  select(-1)
-
-municipal_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_municipalities_2023_20250910_1241.csv") %>% 
-  select(-1)
-
-school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250913_1325.csv") %>% 
-  select(-1)
-
-# Process state data
-state_data <- state_data |>
+####Process state data####
+state_data <- state_data_input |>
   #filter(flg_acfr == 1) |>
   filter(year == 2023) |>
   rename(
@@ -43,8 +32,8 @@ state_data <- state_data |>
     opeb_liability = net_net_opeb_liability
   )
 
-# Process county data
-county_data <- county_data |>
+#### Process county data####
+county_data <- county_data_input |>
   
   filter(flg_acfr == 1) |>
   filter(year == 2023) |>
@@ -77,8 +66,8 @@ county_data <- county_data |>
     opeb_liability = net_net_opeb_liability
   )
 
-# Process municipal data
-municipal_data <- municipal_data |>
+#### Process municipal data####
+municipal_data <- municipal_data_input |>
   
   filter(flg_acfr == 1) |>
   filter(year == 2023) |>
@@ -109,8 +98,8 @@ municipal_data <- municipal_data |>
     opeb_liability = net_net_opeb_liability
   )
 
-# Process school district data
-school_district_data <- school_district_data |>
+#### Process school district data####
+school_district_data <- school_district_data_input |>
   
   filter(flg_acfr == 1) |>
   filter(year == 2023) |>

@@ -1,13 +1,9 @@
 library(tidyverse)
 library(jsonlite)
-# Read all data files
-
-
-school_district_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_schooldistricts_2023_20250913_1325.csv") %>% 
-  select(-1)
+source("read_in_data.R")
 
 # filter for only 2023 data, standardize names
-school_district_data <- school_district_data |>
+school_district_data <- school_district_data_input |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
