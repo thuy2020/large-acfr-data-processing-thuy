@@ -98,6 +98,7 @@ municipal_data <- municipal_data_input |>
     opeb_liability = net_net_opeb_liability
   )
 
+
 #### Process school district data####
 school_district_data <- school_district_data_input |>
   
@@ -229,7 +230,8 @@ all_financial_data <- bind_rows(
   school_district_financial
 )
 
-# Aggregate by state - using sum() without na.rm to match behavior of other scripts
+#### Aggregate by state####
+#using sum() without na.rm to match behavior of other scripts
 state_aggregate_data <- all_financial_data |>
   group_by(state_name, state_abbr) |>
   summarize(

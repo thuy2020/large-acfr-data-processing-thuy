@@ -1,11 +1,9 @@
 library(tidyverse)
 library(jsonlite)
-
-state_data <- read_csv("https://raw.githubusercontent.com/thuy2020/acfrs_data/refs/heads/main/output/all_states_2023_20250912_1109.csv") %>% 
-  select(-1)
+source("read_in_data.R")
 
 # filter for only 2023 data, standardize names
-state_data <- state_data |>
+state_data <- state_data_input |>
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
