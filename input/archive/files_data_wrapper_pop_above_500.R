@@ -1,42 +1,43 @@
 library(tidyverse)
 library(jsonlite)
 source("functions.R")
-
-states_exclude <- c("District of Columbia")
-
-####Read in data####
-state_aggregated <- readRDS("output/state_aggregated.rds") 
-
+state_aggregated <- readRDS("output/state_aggregated.rds")
 overall_totals <- readRDS("output/overall_totals.RDS")
-
-state_entity_type_summary <- readRDS("output/state_entity_type_summary.RDS") %>% 
-  filter(!state_name %in% states_exclude)
-
+state_entity_type_summary <- readRDS("output/state_entity_type_summary.RDS")
 state_data <- readRDS("output/state_data.rds")
+county_data <- readRDS("output/county_data.rds")
+municipal_data <- readRDS("output/municipal_data.rds")
+school_district_data <- readRDS("output/school_district_data.rds")
 
-county_data <- readRDS("output/county_data.rds") %>% filter(population >= 10000) %>% 
-  mutate(
+# Limit to 50 states (exclude District of Columbia)
+states_exclude <- c("District of Columbia")
+state_aggregated <- state_aggregated %>% filter(!state_name %in% states_exclude)
+state_entity_type_summary <- state_entity_type_summary %>% filter(!state_name %in% states_exclude)
+state_data <- state_data %>% filter(!state_name %in% states_exclude)
+# School districts: keep only those with >= 500 students (population field)
+school_district_data <- school_district_data %>% filter(population >= 500)
+# Counties: keep only those with population >= 10,000
+county_data <- county_data %>% filter(population >= 10000)
+# Municipalities: keep only those with population >= 10,000
+municipal_data <- municipal_data %>% filter(population >= 10000)
+# Standardize DC naming: 'District of Columbia' -> 'Washington' for entity_name in counties and munis
+county_data <- county_data %>% mutate(
   entity_name = if_else(state_name == "District of Columbia", "Washington", entity_name)
 )
-  #Standardize DC naming: 'District of Columbia' -> 'Washington' for entity_name in counties and munis
-municipal_data <- readRDS("output/municipal_data.rds") %>% filter(population >= 10000) %>% 
-  mutate(
-    entity_name = if_else(state_name == "District of Columbia", "Washington", entity_name)
-  )
-
-school_district_data <- readRDS("output/school_district_data.rds") %>% filter(population >= 500)
+municipal_data <- municipal_data %>% mutate(
+  entity_name = if_else(state_name == "District of Columbia", "Washington", entity_name)
+)
 
 #####
-school_district_data %>% filter(is.na(population) | population == 0) %>% 
-  filter(total_liabilities >0) %>% 
-  filter(!str_detect(entity_name, "boces|(service center)|(cooperative educational services)|
-                     (educational cooperative)|(educational cooperative)|(technology center)|
-                     (county board of cooperative educational services)|(special education)|
-                     (preparatory school)|(educational service)|(education agency)|
-                     (county regional office)|(regional office of education)|(education service)|
-                     (career development)|(career education)|(special school)|(vocational)")) %>% 
-  select(state_abbr, entity_name, entity_id, total_liabilities) %>% 
-View()
+if (interactive()) {
+  school_district_data %>% filter(is.na(population) | population == 0) %>% 
+    filter(total_liabilities >0) %>% 
+    filter(!str_detect(entity_name, "boces|(service center)|
+                         (educational cooperative)|
+                         (county board of cooperative educational services)")) %>% 
+    select(state_abbr, entity_name, entity_id, total_liabilities) %>% 
+    View()
+}
 ######
 
 
@@ -214,7 +215,7 @@ county_data %>% select(state_name, entity_name, population, non_current_liabilit
   
 ####Table 5.1: City Government Debt####
 #top 50 cities with the most total liabilities
-municipal_data %>% select(state_name, entity_name, population, total_liabilities) %>% 
+municipal_data %>% select(state_abbr, entity_name, population, total_liabilities) %>% 
   arrange(desc(total_liabilities)) %>% 
   slice(1:50) %>% 
   mutate(
@@ -228,7 +229,7 @@ municipal_data %>% select(state_name, entity_name, population, total_liabilities
   ) %>%
   select(
     `City Name` = entity_name,
-    State = state_name,
+    State = state_abbr,
     `City Gov Total Debt` = Aggregate_Total_Debt,
     `City Gov Debt per Capita ` = Aggregate_Debt_per_Capita
   ) %>% 
@@ -236,7 +237,7 @@ municipal_data %>% select(state_name, entity_name, population, total_liabilities
 
 ####Table 5.2: City Government Long-Term Debt####
 
-municipal_data %>% select(state_name, entity_name, population, non_current_liabilities) %>% 
+municipal_data %>% select(state_abbr, entity_name, population, non_current_liabilities) %>% 
   arrange(desc(non_current_liabilities)) %>% 
   slice(1:50) %>% 
   mutate(
@@ -250,7 +251,7 @@ municipal_data %>% select(state_name, entity_name, population, non_current_liabi
   ) %>%
   select(
     `City Name` = entity_name,
-    State = state_name,
+    State = state_abbr,
     `City Gov Long Term Debt` = Aggregate_Total_Debt,
     `City Gov Long Term Debt per Capita ` = Aggregate_Debt_per_Capita
   ) %>% 

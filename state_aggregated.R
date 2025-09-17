@@ -327,6 +327,12 @@ state_aggregate_data <- state_aggregate_data |>
     pct_urban_population
   )
 
+#Exclude DC
+
+state_aggregate_data <- state_aggregate_data %>% 
+  filter(state_abbr != "DC")
+
+
 # Write to JSON
 state_aggregate_json <- toJSON(state_aggregate_data, pretty = TRUE)
 state_aggregate_json <- paste0("export default ", state_aggregate_json)

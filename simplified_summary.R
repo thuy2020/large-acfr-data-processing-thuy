@@ -7,7 +7,7 @@ state_data <- state_data_input |>
   mutate(
     flg_acfr = ifelse(is.na(flg_acfr), 1, flg_acfr),
   ) |>
-  filter(flg_acfr == 1) |>
+  #filter(flg_acfr == 1) |> Note that we use Nevada 2022 data which has flg_acfr == 0
   filter(year == 2023) |>
   rename(
     state_abbr = state.abb,
@@ -176,7 +176,7 @@ school_district_data <- school_district_data_input |>
     pension_liability = net_net_pension_liability,
     opeb_liability = net_net_opeb_liability
   ) |>
-  # Use enrollment_22 as population for school districts
+  # Use enrollment_23 as population for school districts
   mutate(
     population = enrollment_23
   ) |>
@@ -209,7 +209,7 @@ total_count <- state_count + county_count + municipality_count + school_district
 
 # Calculate population totals
 general_population <- safe_sum(state_data, "population") 
-student_enrollment <- safe_sum(school_district_data, "population") # This is enrollment_22
+student_enrollment <- safe_sum(school_district_data, "population") # This is enrollment_23
 
 # Calculate financial totals
 total_assets <- safe_sum(state_data, "total_assets") + 
